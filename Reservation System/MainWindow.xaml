@@ -1,0 +1,208 @@
+﻿<Window x:Class="Reservation_System.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Reservation_System"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="768" Width="1024">
+    <!--Height="450" Width="800"-->
+    <Grid x:Name="mainGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1.*"></RowDefinition>
+            <RowDefinition Height="4.*"></RowDefinition>
+            <RowDefinition Height="1.*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.*"></ColumnDefinition>
+            <ColumnDefinition Width="1.*"></ColumnDefinition>
+            <ColumnDefinition Width="1.*"></ColumnDefinition>
+            <ColumnDefinition Width="1.*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Label Content="Reservation System" HorizontalContentAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Top"  Width="auto" Grid.Row="0" Grid.ColumnSpan="4" FontWeight="Bold" FontSize="18"/>
+       
+        <Grid  Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Height="auto" Width="auto">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1.*"></RowDefinition>
+                <RowDefinition Height="1.*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid Margin="10,34,10,10" x:Name="registrationFormGrid" Grid.Row="0" Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Center" Height="auto" Width="auto">
+                <Grid.RowDefinitions >
+                    <RowDefinition Height="2.*"/>
+                    <RowDefinition Height="1.*"></RowDefinition>
+                    <RowDefinition Height="1.*"/>
+                    <RowDefinition Height="1.*"/>
+                    <RowDefinition Height="1.*"/>
+                    <RowDefinition Height="1.*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="4.*"></ColumnDefinition>
+                    <ColumnDefinition Width="6.*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+
+                <Label Content="Customer Detail" HorizontalAlignment="Center" Margin="10,20,10,20" VerticalAlignment="Center" Grid.Row="0" Grid.ColumnSpan="2" FontSize="16" HorizontalContentAlignment="Center" Height="40" Width="356"/>
+
+                <Label Content="Customer Name" VerticalAlignment="Top" Grid.Row="1" Grid.Column="0" Height="26" Margin="10,0,10,0" HorizontalContentAlignment="Right"/>
+                <TextBox Name="customerName" Height="auto" Margin="10,0,10,0" TextWrapping="Wrap" VerticalAlignment="Center" AutomationProperties.HelpText="Enter Name" Grid.Row="1" Grid.Column="1" />
+
+                <Label Content="Seat" VerticalAlignment="Center" Margin="10,0,10,0" Grid.Row="2" Height="auto" Grid.Column="0" HorizontalContentAlignment="Right"/>
+                <ComboBox x:Name="seatCombo" Margin="10,0,10,2" Grid.Row="2" VerticalAlignment="Center" Width="auto" Height="auto" Grid.Column="1">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding SeatName}" Background="{Binding bg}"></TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Label Content="Choose Date and Time" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Right"></Label>
+                <DatePicker Grid.Column="1" HorizontalAlignment="Center" Grid.Row="3" VerticalAlignment="Center"/>
+                <Button Name="book" Content="Book Seat" HorizontalAlignment="Center" VerticalAlignment="center" Width="120" Click="Book_Click" Grid.Column="1"  Grid.Row="4" />
+                <Button Name="rest" Content="Rest"  VerticalAlignment="Center" HorizontalAlignment="Center" Width="120" Click="Rest_Click"  Grid.Row="5"  Grid.Column="1" />
+
+            </Grid>
+            <DataGrid x:Name="reservationsDataGrid" Margin="66,10,10,10" Grid.Column="0" Grid.Row="1"/>
+        </Grid>
+        
+        <StackPanel Orientation="Vertical"  Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="2" Height="auto" VerticalAlignment="Top">
+            <Label Content="Seat Layout" HorizontalAlignment="Center" VerticalAlignment="Center" Height="50" FontSize="16"></Label>
+            <Grid x:Name="seatGrid" Margin="0,0,0,0" Height="auto" VerticalAlignment="Center">
+                <!--<Grid.RowDefinitions>
+                <RowDefinition Height="1.*"></RowDefinition>
+                <RowDefinition Height="1.*"></RowDefinition>
+                <RowDefinition Height="1.*"></RowDefinition>
+                <RowDefinition Height="1.*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition  Width="1.*"></ColumnDefinition>
+                <ColumnDefinition  Width="1.*"></ColumnDefinition>
+                <ColumnDefinition  Width="1.*"></ColumnDefinition>
+                <ColumnDefinition  Width="1.*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>-->
+                <!--<Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="auto" Width="75" FontWeight="Bold" Background="#ffffff" Grid.Row="0" Grid.Column="0">-->
+                <!--<StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                    <CheckBox Checked="CheckBox_Checked" Name="seat" >
+                        <CheckBox.Content>
+                            <Image Height="40" Source="empty.png" Stretch="Uniform" Width="auto" HorizontalAlignment="Center"/>
+                        </CheckBox.Content>
+                    </CheckBox>
+                    <Label Content="seat 1"  HorizontalAlignment="Center" VerticalAlignment="Bottom" Canvas.Top="40" Width="75" Canvas.Left="0" HorizontalContentAlignment="Center" x:Name="lbl_sea1" Height="28" Margin="5,0" />
+                </StackPanel>-->
+                <!--</Button>-->
+                <!--<Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="auto" Width="75" FontWeight="Bold" Background="#ffffff" Grid.Row="0" Grid.Column="1">
+                <StackPanel Orientation="Vertical">
+                    <Image Height="40" Source="empty.png" Stretch="UniformToFill"  Width="40"/>
+                    <Label Content="seat 2" HorizontalAlignment="Center" VerticalAlignment="Bottom" Canvas.Top="40" Width="75" Canvas.Left="0" HorizontalContentAlignment="Center" x:Name="lbl_sea2" />
+                </StackPanel>
+            </Button>
+            <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="auto" Width="75" FontWeight="Bold" Background="#ffffff" Grid.Row="0" Grid.Column="2">
+                <StackPanel Orientation="Vertical">
+                    <Image Height="40" Source="empty.png" Stretch="UniformToFill"  Width="40"/>
+                    <Label Content="seat 3" HorizontalAlignment="Center" VerticalAlignment="Bottom" Canvas.Top="40" Width="75" Canvas.Left="0" HorizontalContentAlignment="Center" x:Name="lbl_sea3" />
+                </StackPanel>
+            </Button>
+            <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="auto" Width="75" FontWeight="Bold" Background="#ffffff" Grid.Row="0" Grid.Column="3">
+                <StackPanel Orientation="Vertical">
+                    <Image Height="40" Source="empty.png" Stretch="UniformToFill"  Width="40"/>
+                    <Label Content="seat 4" HorizontalAlignment="Center" VerticalAlignment="Bottom" Canvas.Top="40" Width="75" Canvas.Left="0" HorizontalContentAlignment="Center" x:Name="lbl_sea4" />
+                </StackPanel>
+            </Button>
+
+            <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="auto" Width="75" FontWeight="Bold" Background="#ffffff" Grid.Row="1" Grid.Column="0" >
+                <StackPanel Orientation="Vertical">
+                    <Image Height="40" Source="empty.png" Stretch="UniformToFill"  Width="40"/>
+                    <Label Content="seat 5" HorizontalAlignment="Center" VerticalAlignment="Bottom" Canvas.Top="40" Width="75" Canvas.Left="0" HorizontalContentAlignment="Center" x:Name="lbl_sea5" />
+                </StackPanel>
+            </Button>
+            <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="auto" Width="75" FontWeight="Bold" Background="#ffffff" Grid.Row="1" Grid.Column="1">
+                <StackPanel Orientation="Vertical">
+                    <Image Height="40" Source="empty.png" Stretch="UniformToFill"  Width="40"/>
+                    <Label Content="seat 6" HorizontalAlignment="Center" VerticalAlignment="Bottom" Canvas.Top="40" Width="75" Canvas.Left="0" HorizontalContentAlignment="Center" x:Name="lbl_sea6" />
+                </StackPanel>
+            </Button>
+            <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="auto" Width="75" FontWeight="Bold" Background="#ffffff" Grid.Row="1" Grid.Column="2">
+                <StackPanel Orientation="Vertical">
+                    <Image Height="40" Source="empty.png" Stretch="UniformToFill"  Width="40"/>
+                    <Label Content="seat 7" HorizontalAlignment="Center" VerticalAlignment="Bottom" Canvas.Top="40" Width="75" Canvas.Left="0" HorizontalContentAlignment="Center" x:Name="lbl_sea7" />
+                </StackPanel>
+            </Button>
+            <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="auto" Width="75" FontWeight="Bold" Background="#ffffff" Grid.Row="1" Grid.Column="3">
+                <StackPanel Orientation="Vertical">
+                    <Image Height="40" Source="empty.png" Stretch="UniformToFill"  Width="40"/>
+                    <Label Content="seat 8" HorizontalAlignment="Center" VerticalAlignment="Bottom" Canvas.Top="40" Width="75" Canvas.Left="0" HorizontalContentAlignment="Center" x:Name="lbl_sea8" />
+                </StackPanel>
+            </Button>
+
+            <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="auto" Width="75" FontWeight="Bold" Background="#ffffff" Grid.Row="2" Grid.Column="0" >
+                <StackPanel Orientation="Vertical">
+                    <Image Height="40" Source="empty.png" Stretch="UniformToFill"  Width="40"/>
+                    <Label Content="seat 9" HorizontalAlignment="Center" VerticalAlignment="Bottom" Canvas.Top="40" Width="75" Canvas.Left="0" HorizontalContentAlignment="Center" x:Name="lbl_sea9" />
+                </StackPanel>
+            </Button>
+            <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="auto" Width="75" FontWeight="Bold" Background="#ffffff" Grid.Row="2" Grid.Column="1">
+                <StackPanel Orientation="Vertical">
+                    <Image Height="40" Source="empty.png" Stretch="UniformToFill"  Width="40"/>
+                    <Label Content="seat 10" HorizontalAlignment="Center" VerticalAlignment="Bottom" Canvas.Top="40" Width="75" Canvas.Left="0" HorizontalContentAlignment="Center" x:Name="lbl_sea10" />
+                </StackPanel>
+            </Button>
+            <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="auto" Width="75" FontWeight="Bold" Background="#ffffff" Grid.Row="2" Grid.Column="2">
+                <StackPanel Orientation="Vertical">
+                    <Image Height="40" Source="empty.png" Stretch="UniformToFill"  Width="40"/>
+                    <Label Content="seat 11" HorizontalAlignment="Center" VerticalAlignment="Bottom" Canvas.Top="40" Width="75" Canvas.Left="0" HorizontalContentAlignment="Center" x:Name="lbl_sea11" />
+                </StackPanel>
+            </Button>
+            <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="auto" Width="75" FontWeight="Bold" Background="#ffffff" Grid.Row="2" Grid.Column="3">
+                <StackPanel Orientation="Vertical">
+                    <Image Height="40" Source="empty.png" Stretch="UniformToFill"  Width="40"/>
+                    <Label Content="seat 12" HorizontalAlignment="Center" VerticalAlignment="Bottom" Canvas.Top="40" Width="75" Canvas.Left="0" HorizontalContentAlignment="Center" x:Name="lbl_sea12" />
+                </StackPanel>
+            </Button>
+
+            <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="auto" Width="75" FontWeight="Bold" Background="#ffffff" Grid.Row="3" Grid.Column="0" >
+                <StackPanel Orientation="Vertical">
+                    <Image Height="40" Source="empty.png" Stretch="UniformToFill"  Width="40"/>
+                    <Label Content="seat 13" HorizontalAlignment="Center" VerticalAlignment="Bottom" Canvas.Top="40" Width="75" Canvas.Left="0" HorizontalContentAlignment="Center" x:Name="lbl_sea13" />
+                </StackPanel>
+            </Button>
+            <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="auto" Width="75" FontWeight="Bold" Background="#ffffff" Grid.Row="3" Grid.Column="1">
+                <StackPanel Orientation="Vertical">
+                    <Image Height="40" Source="empty.png" Stretch="UniformToFill"  Width="40"/>
+                    <Label Content="seat 14" HorizontalAlignment="Center" VerticalAlignment="Bottom" Canvas.Top="40" Width="75" Canvas.Left="0" HorizontalContentAlignment="Center" x:Name="lbl_sea14" />
+                </StackPanel>
+            </Button>
+            <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="auto" Width="75" FontWeight="Bold" Background="#ffffff" Grid.Row="3" Grid.Column="2">
+                <StackPanel Orientation="Vertical">
+                    <Image Height="40" Source="empty.png" Stretch="UniformToFill"  Width="40"/>
+                    <Label Content="seat 15" HorizontalAlignment="Center" VerticalAlignment="Bottom" Canvas.Top="40" Width="75" Canvas.Left="0" HorizontalContentAlignment="Center" x:Name="lbl_sea15" />
+                </StackPanel>
+            </Button>
+            <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="auto" Width="75" FontWeight="Bold" Background="#ffffff" Grid.Row="3" Grid.Column="3">
+                <StackPanel Orientation="Vertical">
+                    <Image Height="40" Source="empty.png" Stretch="UniformToFill"  Width="40"/>
+                    <Label Content="seat 16" HorizontalAlignment="Center" VerticalAlignment="Bottom" Canvas.Top="40" Width="75" Canvas.Left="0" HorizontalContentAlignment="Center" x:Name="lbl_sea16" />
+                </StackPanel>
+            </Button>-->
+
+            </Grid>
+        </StackPanel>
+        
+        <Grid x:Name="legendGrid" Width="auto" HorizontalAlignment="Center" Margin="0,0,0,0" Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" >
+            <StackPanel Orientation="Horizontal" Height="65" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="auto" >
+                <StackPanel Orientation="Vertical" Margin="0,0,0,10" Width="60" Height="65">
+                    <Image Source="not-available.png" Stretch="Fill" Width="32" Height="32" Margin="0,5,0,0"/>
+                    <Label Content="selected" HorizontalAlignment="Center" VerticalAlignment="Top" Width="60" Height="25" RenderTransformOrigin="0.505,0.66"/>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="0,0,0,10" Width="60" Height="65">
+                    <Image Source="empty.png" Stretch="Fill" Width="32" Height="32" Margin="0,5,0,0"/>
+                    <Label Content="Available" HorizontalAlignment="Left" VerticalAlignment="Top" Width="60" Height="25"/>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="0,0,0,10" Width="60" Height="65">
+                    <Image Source="occupied.png" Stretch="Fill" Width="32" Height="32" Margin="0,5,0,0"/>
+                    <Label Content="Occupied" HorizontalAlignment="Left" VerticalAlignment="Top" Width="60"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+
+    </Grid>
+</Window>
