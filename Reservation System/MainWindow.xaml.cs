@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,6 +29,8 @@ namespace Reservation_System
         const string SEAT_SELECTED_PATH = "not-available.png";
         const string OCCUPIED_SEAT_PATH = "occupied.png";
 
+        int currentReservationId = 0;
+
         List<Seat> seats = new List<Seat>();
 
         //List<CheckBox> seatCheckBoxes = new List<CheckBox>();
@@ -48,16 +51,32 @@ namespace Reservation_System
 
             CreateSeats();
 
-            SetUpSeatComboBox();
+            //SetUpSeatComboBox();
         }
 
-        private void SetUpSeatComboBox()
+        private List<ReservationGridDataRow> GetReservationDetails()
         {
-            seatCombo.ItemsSource = seats;
-            this.seatCombo.SelectionChanged += SeatCombo_SelectionChanged;
+            List<ReservationGridDataRow> data = new List<ReservationGridDataRow>();
+            foreach (var item in reservations)
+            {
+                data.Add(item.Row);
+                //data.Add(new ReservationGridDataRow(item.Customer.Name, item.GetReservedSeatsString()));
+            }
+
+            return data;
         }
 
-     
+        //private void SetUpSeatComboBox()
+        //{
+        //    seatCombo.ItemsSource = seats;
+        //    this.seatCombo.SelectionChanged += SeatCombo_SelectionChanged;
+        //}
+
+        private void SetSeatCustomerLabel(int seatNo, string customerName)
+        {
+            uISeats[seatNo].customerLabel.Content = customerName;
+        }
+ 
         private void CreateSeats()
         {
             for (int i = 0; i < NO_OF_SEATS; i++)
@@ -174,7 +193,7 @@ namespace Reservation_System
 
         private bool CheckSeatBookSelection()
         {
-            if(seatCombo.SelectedIndex != -1 || checkedSeats.Count > 0)
+            if(/*seatCombo.SelectedIndex != -1 ||*/ checkedSeats.Count > 0)
             {
                 return true;
             }
@@ -201,41 +220,98 @@ namespace Reservation_System
             }
         }
 
-        #region Event handling 
-
-        private void SeatCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void MarkSeat(int seatId, SeatState state)
         {
-            int selectedSeat = seatCombo.SelectedIndex;
-
-            CheckboxSeatImageSetAt(selectedSeat);
-            //seatCheckBoxes[selectedSeat].IsChecked = !seatCheckBoxes[selectedSeat].IsChecked;
-
-            //if (seatCheckBoxes[selectedSeat].IsChecked == true)
-            //{
-            //    seats[selectedSeat].State = SeatState.SELECTED;
-            //    seatIcons[selectedSeat].Source = new BitmapImage(new Uri(@SEAT_SELECTED_PATH, UriKind.Relative));
-            //}
-            //else
-            //{
-            //    seats[selectedSeat].State = SeatState.AVAILABLE;
-            //    seatIcons[selectedSeat].Source = new BitmapImage(new Uri(@AVAILABLE_SEAT_PATH, UriKind.Relative));
-            //}
+            switch (state)
+            {
+                case SeatState.AVAILABLE:
+                    seats[seatId].State = SeatState.AVAILABLE;
+                    uISeats[seatId].seatIcon.Source = new BitmapImage(new Uri(@AVAILABLE_SEAT_PATH, UriKind.Relative));
+                    uISeats[seatId].checkBox.IsEnabled = true;
+                    break;
+                case SeatState.RESERVED:
+                    seats[seatId].State = SeatState.RESERVED;
+                    uISeats[seatId].seatIcon.Source = new BitmapImage(new Uri(@OCCUPIED_SEAT_PATH, UriKind.Relative));
+                    uISeats[seatId].checkBox.IsEnabled = false;
+                    break;
+                case SeatState.NOT_AVAILABLE:
+                    break;
+                case SeatState.SELECTED:
+                    seats[seatId].State = SeatState.SELECTED;
+                    uISeats[seatId].seatIcon.Source = new BitmapImage(new Uri(@SEAT_SELECTED_PATH, UriKind.Relative));
+                    break;
+                default:
+                    break;
+            }
 
         }
 
-        private void Seat_Unchecked(object sender, RoutedEventArgs e)
+        private void AddSeatToCheckedSeats(int seatId)
         {
-            var seat = sender as CheckBox;
-            checkedSeats.Remove(seat);
+            checkedSeats.Add(uISeats[seatId].checkBox);
+        }
 
+        private void RemoveFromCheckedSeats(int seatId)
+        {
+            uISeats[seatId].checkBox.IsChecked = false;
+            checkedSeats.Remove(uISeats[seatId].checkBox);
+        }
+
+        private bool IsSeatAvailable()
+        {
+            foreach (var seat in uISeats)
+            {
+                if (seat.GetSeat().State == SeatState.AVAILABLE || seat.GetSeat().State == SeatState.SELECTED)
+                {
+                    return true;
+                }
+            }
+            MessageBox.Show("No Seat(s) available");
+            return false;
+        }
+
+        private void ReloadReservationDataGrid()
+        {
+            reservationsDataGrid.ItemsSource = GetReservationDetails();
+
+        }
+
+        private void ClearCustomerName()
+        {
+            customerName.Text = "";
+        }
+
+
+        #region Event handling 
+
+        //private void SeatCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        //{
+        //    int selectedSeat = seatCombo.SelectedIndex;
+
+        //    CheckboxSeatImageSetAt(selectedSeat);
+        //    //seatCheckBoxes[selectedSeat].IsChecked = !seatCheckBoxes[selectedSeat].IsChecked;
+
+        //    //if (seatCheckBoxes[selectedSeat].IsChecked == true)
+        //    //{
+        //    //    seats[selectedSeat].State = SeatState.SELECTED;
+        //    //    seatIcons[selectedSeat].Source = new BitmapImage(new Uri(@SEAT_SELECTED_PATH, UriKind.Relative));
+        //    //}
+        //    //else
+        //    //{
+        //    //    seats[selectedSeat].State = SeatState.AVAILABLE;
+        //    //    seatIcons[selectedSeat].Source = new BitmapImage(new Uri(@AVAILABLE_SEAT_PATH, UriKind.Relative));
+        //    //}
+
+        //}
+
+        private void Seat_Unchecked(object sender, RoutedEventArgs e)
+        { 
+            var seat = sender as CheckBox;
             try
             {
                 int selectedSeat = int.Parse(seat.Name.Split('_')[1]) - 1; // Seat_1 => 1 
-                seats[selectedSeat].State = SeatState.AVAILABLE;
-                
-                uISeats[selectedSeat].seatIcon.Source = new BitmapImage(new Uri(@AVAILABLE_SEAT_PATH, UriKind.Relative));
-
-                //seatIcons[selectedSeat].Source = new BitmapImage(new Uri(@AVAILABLE_SEAT_PATH, UriKind.Relative));
+                MarkSeat(selectedSeat, SeatState.AVAILABLE);
+                RemoveFromCheckedSeats(selectedSeat);
             }
             catch (Exception)
             {
@@ -246,16 +322,11 @@ namespace Reservation_System
         private void Seat_Checked(object sender, RoutedEventArgs e)
         {
             var seat = sender as CheckBox;
-
-            checkedSeats.Add(seat);
-
             try
             {
                 int selectedSeat = int.Parse(seat.Name.Split('_')[1]) - 1; // Seat_1 => 1 
-
-                seats[selectedSeat].State = SeatState.SELECTED;
-                uISeats[selectedSeat].seatIcon.Source = new BitmapImage(new Uri(@SEAT_SELECTED_PATH, UriKind.Relative));
-                //seatIcons[selectedSeat].Source = new BitmapImage(new Uri(@SEAT_SELECTED_PATH, UriKind.Relative));
+                MarkSeat(selectedSeat, SeatState.SELECTED);
+                AddSeatToCheckedSeats(selectedSeat);
             }
             catch (Exception)
             {
@@ -263,29 +334,39 @@ namespace Reservation_System
             }
         }
 
-        private void CheckBox_Checked(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("Seat 1 selected");
-        }
-
         private void Rest_Click(object sender, RoutedEventArgs e)
         {
+            
             foreach (var seat in uISeats)
             {
                 seat.checkBox.IsChecked = false;
             }
+
+            foreach (var reservation in reservations)
+            {
+                HighlightSeatsFor(reservation.ReservedSeats, false);
+            }
+
+            reservations.Clear();
+            ReloadReservationDataGrid();
         }
 
         private void Book_Click(object sender, RoutedEventArgs e)
         {
+            if (!IsSeatAvailable()) return;
+
             if (CheckSeatBookSelection() && CheckCustomerName())
             {
-                reservations.Add(new Reservation(new Customer(customerName.Text), GetSelectedSeats()));
+                reservations.Add(new Reservation(currentReservationId++, new Customer(customerName.Text), GetSelectedSeats()));
 
                 checkedSeats.Clear();
 
                 MarkSeatsReserved();
+                
+                ReloadReservationDataGrid();
 
+                ClearCustomerName();
+              //  reservationsDataGrid.ItemsSource = GetReservationDetails();
             }
 
             List<Seat> GetSelectedSeats()
@@ -298,14 +379,93 @@ namespace Reservation_System
                 var processingSeats = GetSelectedSeats();
                 foreach (var seat in  processingSeats)
                 {
-                    seat.State = SeatState.RESERVED;
-                    uISeats[seat.SeatNo].seatIcon.Source = new BitmapImage(new Uri(@OCCUPIED_SEAT_PATH, UriKind.Relative));
-                    uISeats[seat.SeatNo].checkBox.IsEnabled = false;
-                    uISeats[seat.SeatNo].customerLabel.Content = customerName.Text;
+                    //seat.State = SeatState.RESERVED;
+                    //uISeats[seat.SeatNo].seatIcon.Source = new BitmapImage(new Uri(@OCCUPIED_SEAT_PATH, UriKind.Relative));
+                    MarkSeat(seat.SeatNo, SeatState.RESERVED);
+                    
+                    //uISeats[seat.SeatNo].checkBox.IsEnabled = false;
+                    
+                    //uISeats[seat.SeatNo].customerLabel.Content = customerName.Text;
+                    SetSeatCustomerLabel(seat.SeatNo, customerName.Text);
                 }
             }
         }
+        
+        private void Delete_Click(object sender, RoutedEventArgs e)
+        {
+            var rows = reservationsDataGrid.SelectedItems;
+
+            if(rows == null || rows.Count == 0)
+            {
+                MessageBox.Show("Please Select reservation");
+                return;
+            }
+            
+            foreach (ReservationGridDataRow row in rows)
+            {
+                var seats = reservations.Where(i => i.Id == row.ReservationIndex).Select(i => i.ReservedSeats).FirstOrDefault();
+
+                foreach (var seat in seats)
+                {
+
+                    MarkSeat(seat.SeatNo, SeatState.AVAILABLE);
+                    RemoveFromCheckedSeats(seat.SeatNo);
+                    SetSeatCustomerLabel(seat.SeatNo, "");
+                    //seat.State = SeatState.AVAILABLE;
+                }
+
+                var r = reservations.Where(i => i.Id == row.ReservationIndex).ToArray();
+                if(r != null)
+                {
+                    reservations.Remove(r[0]);
+                }
+            }
+
+            ReloadReservationDataGrid();
+        }
+
+        private void ReservationsDataGrid_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
+        {
+            if(e.Column.Header.ToString() == "ReservationIndex")
+            {
+                e.Column.Visibility = Visibility.Hidden;
+            }
+        }
+
+        private void HighlightSeatsFor(List<Seat> seats, bool isVisible)
+        {
+            var color = isVisible ? new SolidColorBrush(Colors.AliceBlue) : new SolidColorBrush(Colors.White);
+
+            foreach (var seat in seats)
+            {
+                uISeats[seat.SeatNo].stack.Background = color;
+            }
+        }
         #endregion
+
+        private void DataGridRow_GotFocus(object sender, RoutedEventArgs e)
+        {
+            //var rows = reservationsDataGrid.SelectedItems;
+
+            //foreach (ReservationGridDataRow row in rows)
+            //{
+            //    var seats = reservations.Where(i => i.Id == row.ReservationIndex).Select(i => i.ReservedSeats).FirstOrDefault();
+            //    HighlightSeatsFor(seats, true);
+            //}
+        }
+
+        private void DataGridRow_LostFocus(object sender, RoutedEventArgs e)
+        {
+            //var rows = reservationsDataGrid.SelectedItems;
+
+            //foreach (ReservationGridDataRow row in rows)
+            //{
+            //    var seats = reservations.Where(i => i.Id == row.ReservationIndex).Select(i => i.ReservedSeats).FirstOrDefault();
+
+            //    HighlightSeatsFor(seats, false);
+            //}
+        }
     }
 }
 
+  

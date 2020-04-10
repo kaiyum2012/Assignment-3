@@ -19,14 +19,11 @@ namespace Reservation_System
     {
         int seatNo;
         string seatName;
-        //string customerName;
         SeatState state;
-        string bg;
 
         public Seat(int seatNo,SeatState state = SeatState.AVAILABLE)
         {
             SeatNo = seatNo;
-            //CustomerName = customerName;
             State = state;
         }
 
@@ -43,7 +40,6 @@ namespace Reservation_System
                 SeatName = "Seat_" + (seatNo + 1);
             }
         }
-        //public string CustomerName { get => customerName; set => customerName = value; }
         public string SeatName { get => seatName; set => seatName = value; }
         public SeatState State {
         
@@ -51,24 +47,6 @@ namespace Reservation_System
             
             set { 
                 state = value;
-
-                //switch (state)
-                //{
-                //    case SeatState.AVAILABLE:
-                //        bg = "#ffffff";
-                //        break;
-                //    case SeatState.RESERVED:
-                //        bg = "red";
-                //        break;
-                //    case SeatState.NOT_AVAILABLE:
-                //        bg = "black";
-                //        break;
-                //    case SeatState.SELECTED:
-                //        bg = "blue";
-                //        break;
-                //}
-                //Console.WriteLine(bg);
-
             }
         }
     }

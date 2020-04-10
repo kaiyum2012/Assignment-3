@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,18 +7,62 @@ using System.Threading.Tasks;
 
 namespace Reservation_System
 {
-    class Reservation
+    class Reservation : IEnumerable
     {
+        int id;
         Customer customer;
         List<Seat> reservedSeats = new List<Seat>();
 
-        public Reservation(Customer customer, List<Seat> reservedSeats)
+        ReservationGridDataRow row = null;
+
+        public Reservation(int id,Customer customer, List<Seat> seats)
         {
+            this.Id = id;
             this.Customer = customer;
-            this.ReservedSeats = reservedSeats;
+            this.ReservedSeats = seats;
+
+            Row = new ReservationGridDataRow(id,customer.Name, GetReservedSeatsString());
         }
 
         public Customer Customer { get => customer; set => customer = value; }
-        internal List<Seat> ReservedSeats { get => reservedSeats; set => reservedSeats = value; }
+        public List<Seat> ReservedSeats { get => reservedSeats; set => reservedSeats = value; }
+        public int Id { get => id; set => id = value; }
+        internal ReservationGridDataRow Row { get => row; set => row = value; }
+
+        public IEnumerator GetEnumerator()
+        {
+            return ((IEnumerable)ReservedSeats).GetEnumerator();
+        }
+
+        public string GetReservedSeatsString()
+        {
+            string seats = "";
+            foreach (var item in reservedSeats)
+            {
+                seats += item.SeatName + ",";
+            }
+            return seats;
+        }
     }
+
+    class ReservationGridDataRow
+    {
+        int reservationIndex;
+        string customerName;
+        string seats;
+
+        public ReservationGridDataRow() { }
+
+        public ReservationGridDataRow(int index,string customerName, string seats)
+        {
+            this.reservationIndex = index;
+            this.CustomerName = customerName;
+            this.Seats = seats;
+        }
+
+        public string CustomerName { get => customerName; set => customerName = value; }
+        public string Seats { get => seats; set => seats = value; }
+        public int ReservationIndex { get => reservationIndex; set => reservationIndex = value; }
+    }
+
 }

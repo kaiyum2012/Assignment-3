@@ -48,8 +48,8 @@
                 <Label Content="Customer Name" VerticalAlignment="Top" Grid.Row="1" Grid.Column="0" Height="26" Margin="10,0,10,0" HorizontalContentAlignment="Right"/>
                 <TextBox Name="customerName" Height="auto" Margin="10,0,10,0" TextWrapping="Wrap" VerticalAlignment="Center" AutomationProperties.HelpText="Enter Name" Grid.Row="1" Grid.Column="1" />
 
-                <Label Content="Seat" VerticalAlignment="Center" Margin="10,0,10,0" Grid.Row="2" Height="auto" Grid.Column="0" HorizontalContentAlignment="Right"/>
-                <ComboBox x:Name="seatCombo" Margin="10,0,10,2" Grid.Row="2" VerticalAlignment="Center" Width="auto" Height="auto" Grid.Column="1">
+                <!--<Label Content="Seat" VerticalAlignment="Center" Margin="10,0,10,0" Grid.Row="2" Height="auto" Grid.Column="0" HorizontalContentAlignment="Right"/>-->
+                <!--<ComboBox x:Name="seatCombo" Margin="10,0,10,2" Grid.Row="2" VerticalAlignment="Center" Width="auto" Height="auto" Grid.Column="1">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding SeatName}" Background="{Binding bg}"></TextBlock>
@@ -57,12 +57,21 @@
                     </ComboBox.ItemTemplate>
                 </ComboBox>
                 <Label Content="Choose Date and Time" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Right"></Label>
-                <DatePicker Grid.Column="1" HorizontalAlignment="Center" Grid.Row="3" VerticalAlignment="Center"/>
+                <DatePicker Grid.Column="1" HorizontalAlignment="Center" Grid.Row="3" VerticalAlignment="Center"/>-->
                 <Button Name="book" Content="Book Seat" HorizontalAlignment="Center" VerticalAlignment="center" Width="120" Click="Book_Click" Grid.Column="1"  Grid.Row="4" />
-                <Button Name="rest" Content="Rest"  VerticalAlignment="Center" HorizontalAlignment="Center" Width="120" Click="Rest_Click"  Grid.Row="5"  Grid.Column="1" />
+                
 
             </Grid>
-            <DataGrid x:Name="reservationsDataGrid" Margin="66,10,10,10" Grid.Column="0" Grid.Row="1"/>
+            <DataGrid x:Name="reservationsDataGrid" Margin="66,10,10,10" Grid.Column="0" Grid.Row="1" AutoGenerateColumns="True" IsReadOnly="True" 
+                      AutoGeneratingColumn="ReservationsDataGrid_AutoGeneratingColumn">
+                <DataGrid.ItemContainerStyle>
+                    <Style TargetType="DataGridRow">
+                        <EventSetter Event="GotFocus" Handler="DataGridRow_GotFocus"></EventSetter>
+                        <EventSetter Event="LostFocus" Handler="DataGridRow_LostFocus"></EventSetter>
+                        
+                    </Style>
+                </DataGrid.ItemContainerStyle>
+            </DataGrid>
         </Grid>
         
         <StackPanel Orientation="Vertical"  Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="2" Height="auto" VerticalAlignment="Top">
@@ -186,6 +195,20 @@
 
             </Grid>
         </StackPanel>
+
+        <Grid x:Name="ActionGrid" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1.*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.*"></ColumnDefinition>
+                <ColumnDefinition Width="1.*"></ColumnDefinition>
+                <ColumnDefinition Width="1.*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <!--<Button x:Name="show" Content="Show" VerticalAlignment="Center" HorizontalAlignment="Center" Width="120" Grid.Row="0" Grid.Column="0" Click="Show_Click"></Button>-->
+            <Button x:Name="delete" Content="Delete" VerticalAlignment="Center" HorizontalAlignment="Center" Width="120" Grid.Row="0" Grid.Column="1" Click="Delete_Click"></Button>
+            <Button x:Name="rest" Content="Rest"  VerticalAlignment="Center" HorizontalAlignment="Center" Width="120" Click="Rest_Click"  Grid.Row="0" Grid.Column="2"/>
+        </Grid>
         
         <Grid x:Name="legendGrid" Width="auto" HorizontalAlignment="Center" Margin="0,0,0,0" Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" >
             <StackPanel Orientation="Horizontal" Height="65" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="auto" >
