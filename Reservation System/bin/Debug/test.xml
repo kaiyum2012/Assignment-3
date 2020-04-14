@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<ArrayOfReservation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Reservation>
+    <Customer>
+      <Name>asdsa</Name>
+    </Customer>
+    <ReservedSeats>
+      <Seat>
+        <SeatNo>1</SeatNo>
+        <SeatName>Seat_2</SeatName>
+        <State>RESERVED</State>
+      </Seat>
+      <Seat>
+        <SeatNo>4</SeatNo>
+        <SeatName>Seat_5</SeatName>
+        <State>RESERVED</State>
+      </Seat>
+    </ReservedSeats>
+    <Id>0</Id>
+  </Reservation>
+</ArrayOfReservation>

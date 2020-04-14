@@ -21,6 +21,7 @@ namespace Reservation_System
         string seatName;
         SeatState state;
 
+        public Seat() { }
         public Seat(int seatNo,SeatState state = SeatState.AVAILABLE)
         {
             SeatNo = seatNo;

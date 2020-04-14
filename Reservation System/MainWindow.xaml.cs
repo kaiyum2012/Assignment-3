@@ -1,18 +1,17 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using Reservation_System.Utils;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace Reservation_System
 {
@@ -28,22 +27,24 @@ namespace Reservation_System
         const string AVAILABLE_SEAT_PATH = "empty.png";
         const string SEAT_SELECTED_PATH = "not-available.png";
         const string OCCUPIED_SEAT_PATH = "occupied.png";
-
+        private const int minLength = 0;
+        private const int maxLength = 20;
         int currentReservationId = 0;
 
         List<Seat> seats = new List<Seat>();
 
-        //List<CheckBox> seatCheckBoxes = new List<CheckBox>();
-        //List<Image> seatIcons = new List<Image>();
-        //List<Label> seatLabels = new List<Label>();
+        List<string> customerNames = new List<string>();
 
         List<CheckBox> checkedSeats = new List<CheckBox>();
 
+        //UISeatList uISeatList = new UISeatList();
         List<UISeat> uISeats = new List<UISeat>();
 
         List<Reservation> reservations = new List<Reservation>();
 
         public List<Seat> Seats { get => seats; set => seats = value; }
+
+        private IEnumerable CustomerNames => reservations.Select(i => i.Customer);
 
         public MainWindow()
         {
@@ -51,7 +52,10 @@ namespace Reservation_System
 
             CreateSeats();
 
-            //SetUpSeatComboBox();
+            SetupCustomerComboBox();
+
+            ReservationSerializer util = new ReservationSerializer();
+            
         }
 
         private List<ReservationGridDataRow> GetReservationDetails()
@@ -66,15 +70,16 @@ namespace Reservation_System
             return data;
         }
 
-        //private void SetUpSeatComboBox()
-        //{
-        //    seatCombo.ItemsSource = seats;
-        //    this.seatCombo.SelectionChanged += SeatCombo_SelectionChanged;
-        //}
+        private void SetupCustomerComboBox()
+        {
+            customerCombo.ItemsSource = CustomerNames;
+            this.customerCombo.SelectionChanged += CustomerCombo_SelectionChanged;
+        }
 
         private void SetSeatCustomerLabel(int seatNo, string customerName)
         {
             uISeats[seatNo].customerLabel.Content = customerName;
+            //uISeatList[seatNo].customerLabel.Content = customerName;
         }
  
         private void CreateSeats()
@@ -108,7 +113,7 @@ namespace Reservation_System
                     {
                         Name = "stack_" + seats[seat].SeatName,
                         Orientation = Orientation.Vertical,
-                        HorizontalAlignment = HorizontalAlignment.Center
+                        HorizontalAlignment = HorizontalAlignment.Center,
                     };
 
                     //TODO:: set grid position 
@@ -155,9 +160,9 @@ namespace Reservation_System
                     Label customerLabel = new Label
                     {
                         Content = "",
-                        HorizontalAlignment = HorizontalAlignment.Center
+                        HorizontalAlignment = HorizontalAlignment.Center,
                     };
-
+                    
                     //TODO:: Create Label
                     stack.Children.Add(checkBox);
                     stack.Children.Add(label);
@@ -167,7 +172,9 @@ namespace Reservation_System
                     uiSeat.SetSeat(Seats[seat]);
 
                     uISeats.Add(uiSeat);
-                    
+                    //uISeatList.Add(uiSeat);
+
+
                     seatGrid.Children.Add(stack);
 
                     seat++;
@@ -175,21 +182,21 @@ namespace Reservation_System
             }
         }
     
-        private void CheckboxSeatImageSetAt(int selectedSeat)
-        {
-            uISeats[selectedSeat].checkBox.IsChecked = !uISeats[selectedSeat].checkBox.IsChecked;
+        //private void CheckboxSeatImageSetAt(int selectedSeat)
+        //{
+        //    uISeats[selectedSeat].checkBox.IsChecked = !uISeats[selectedSeat].checkBox.IsChecked;
 
-            if (uISeats[selectedSeat].checkBox.IsChecked == true)
-            {
-                seats[selectedSeat].State = SeatState.SELECTED;
-                uISeats[selectedSeat].seatIcon.Source = new BitmapImage(new Uri(@SEAT_SELECTED_PATH, UriKind.Relative));
-            }
-            else
-            {
-                seats[selectedSeat].State = SeatState.AVAILABLE;
-                uISeats[selectedSeat].seatIcon.Source = new BitmapImage(new Uri(@AVAILABLE_SEAT_PATH, UriKind.Relative));
-            }
-        }
+        //    if (uISeats[selectedSeat].checkBox.IsChecked == true)
+        //    {
+        //        seats[selectedSeat].State = SeatState.SELECTED;
+        //        uISeats[selectedSeat].seatIcon.Source = new BitmapImage(new Uri(@SEAT_SELECTED_PATH, UriKind.Relative));
+        //    }
+        //    else
+        //    {
+        //        seats[selectedSeat].State = SeatState.AVAILABLE;
+        //        uISeats[selectedSeat].seatIcon.Source = new BitmapImage(new Uri(@AVAILABLE_SEAT_PATH, UriKind.Relative));
+        //    }
+        //}
 
         private bool CheckSeatBookSelection()
         {
@@ -207,17 +214,19 @@ namespace Reservation_System
 
         private bool CheckCustomerName()
         {
-            if(customerName.Text != "")
-            {
-                return true;
-            }
-            else
+            if(string.IsNullOrWhiteSpace(customerName.Text))
             {
                 MessageBox.Show("Please provide customer name");
                 Console.WriteLine("Please provide customer name");
                 return false;
-
             }
+            else if(customerName.Text.Length > maxLength)
+            {
+                MessageBox.Show($"Customer name is longer than {maxLength} character");
+                Console.WriteLine($"Customer name is longer than {maxLength} character");
+                return false;
+            }
+            return true;
         }
 
         private void MarkSeat(int seatId, SeatState state)
@@ -227,18 +236,23 @@ namespace Reservation_System
                 case SeatState.AVAILABLE:
                     seats[seatId].State = SeatState.AVAILABLE;
                     uISeats[seatId].seatIcon.Source = new BitmapImage(new Uri(@AVAILABLE_SEAT_PATH, UriKind.Relative));
+                    //uISeatList[seatId].seatIcon.Source = new BitmapImage(new Uri(@AVAILABLE_SEAT_PATH, UriKind.Relative));
                     uISeats[seatId].checkBox.IsEnabled = true;
+                    //uISeatList[seatId].checkBox.IsEnabled = true;
                     break;
                 case SeatState.RESERVED:
                     seats[seatId].State = SeatState.RESERVED;
                     uISeats[seatId].seatIcon.Source = new BitmapImage(new Uri(@OCCUPIED_SEAT_PATH, UriKind.Relative));
+                    //uISeatList[seatId].seatIcon.Source = new BitmapImage(new Uri(@OCCUPIED_SEAT_PATH, UriKind.Relative));
                     uISeats[seatId].checkBox.IsEnabled = false;
+                    //uISeatList[seatId].checkBox.IsEnabled = false;
                     break;
                 case SeatState.NOT_AVAILABLE:
                     break;
                 case SeatState.SELECTED:
                     seats[seatId].State = SeatState.SELECTED;
                     uISeats[seatId].seatIcon.Source = new BitmapImage(new Uri(@SEAT_SELECTED_PATH, UriKind.Relative));
+                    //uISeatList[seatId].seatIcon.Source = new BitmapImage(new Uri(@SEAT_SELECTED_PATH, UriKind.Relative));
                     break;
                 default:
                     break;
@@ -249,17 +263,21 @@ namespace Reservation_System
         private void AddSeatToCheckedSeats(int seatId)
         {
             checkedSeats.Add(uISeats[seatId].checkBox);
+            //checkedSeats.Add(uISeatList[seatId].checkBox);
         }
 
         private void RemoveFromCheckedSeats(int seatId)
         {
             uISeats[seatId].checkBox.IsChecked = false;
+            //uISeatList[seatId].checkBox.IsChecked = false;
             checkedSeats.Remove(uISeats[seatId].checkBox);
+            //checkedSeats.Remove(uISeatList[seatId].checkBox);
         }
 
         private bool IsSeatAvailable()
         {
             foreach (var seat in uISeats)
+            //foreach (var seat in uISeatList)
             {
                 if (seat.GetSeat().State == SeatState.AVAILABLE || seat.GetSeat().State == SeatState.SELECTED)
                 {
@@ -276,33 +294,29 @@ namespace Reservation_System
 
         }
 
+        private void ReloadCustomerComboBox()
+        {
+            customerCombo.ItemsSource = CustomerNames;
+        }
+
         private void ClearCustomerName()
         {
             customerName.Text = "";
         }
 
+        private void ExportCurrentReservationToXml()
+        {
+            var filename = "_tempSeatingLayout.xml";
+            ExportToxml(filename, reservations);
+        }
 
         #region Event handling 
 
-        //private void SeatCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        //{
-        //    int selectedSeat = seatCombo.SelectedIndex;
-
-        //    CheckboxSeatImageSetAt(selectedSeat);
-        //    //seatCheckBoxes[selectedSeat].IsChecked = !seatCheckBoxes[selectedSeat].IsChecked;
-
-        //    //if (seatCheckBoxes[selectedSeat].IsChecked == true)
-        //    //{
-        //    //    seats[selectedSeat].State = SeatState.SELECTED;
-        //    //    seatIcons[selectedSeat].Source = new BitmapImage(new Uri(@SEAT_SELECTED_PATH, UriKind.Relative));
-        //    //}
-        //    //else
-        //    //{
-        //    //    seats[selectedSeat].State = SeatState.AVAILABLE;
-        //    //    seatIcons[selectedSeat].Source = new BitmapImage(new Uri(@AVAILABLE_SEAT_PATH, UriKind.Relative));
-        //    //}
-
-        //}
+        private void CustomerCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            int selectedCustomer = customerCombo.SelectedIndex;
+            reservationsDataGrid.SelectedIndex = selectedCustomer;
+        }
 
         private void Seat_Unchecked(object sender, RoutedEventArgs e)
         { 
@@ -336,8 +350,9 @@ namespace Reservation_System
 
         private void Rest_Click(object sender, RoutedEventArgs e)
         {
-            
+
             foreach (var seat in uISeats)
+            //foreach (var seat in uISeatList)
             {
                 seat.checkBox.IsChecked = false;
             }
@@ -365,8 +380,9 @@ namespace Reservation_System
                 
                 ReloadReservationDataGrid();
 
+                ReloadCustomerComboBox();
+
                 ClearCustomerName();
-              //  reservationsDataGrid.ItemsSource = GetReservationDetails();
             }
 
             List<Seat> GetSelectedSeats()
@@ -390,7 +406,7 @@ namespace Reservation_System
                 }
             }
         }
-        
+
         private void Delete_Click(object sender, RoutedEventArgs e)
         {
             var rows = reservationsDataGrid.SelectedItems;
@@ -422,6 +438,8 @@ namespace Reservation_System
             }
 
             ReloadReservationDataGrid();
+
+            ReloadCustomerComboBox();
         }
 
         private void ReservationsDataGrid_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
@@ -439,9 +457,9 @@ namespace Reservation_System
             foreach (var seat in seats)
             {
                 uISeats[seat.SeatNo].stack.Background = color;
+                //uISeatList[seat.SeatNo].stack.Background = color;
             }
         }
-        #endregion
 
         private void DataGridRow_GotFocus(object sender, RoutedEventArgs e)
         {
@@ -464,6 +482,187 @@ namespace Reservation_System
 
             //    HighlightSeatsFor(seats, false);
             //}
+        }
+
+        private void CustomerName_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            if (!System.Text.RegularExpressions.Regex.IsMatch(e.Text, "^[a-zA-Z]"))
+            {
+                e.Handled = true;
+            }
+        }
+       
+        private void Clear_Click(object sender, RoutedEventArgs e)
+        {
+            customerName.Text = "";
+        }
+
+        #endregion
+
+        private void CustomerZToA_Click(object sender, RoutedEventArgs e)
+        {
+
+            if (reservations.Count == 0)
+            {
+                MessageBox.Show("No Reservations Available");
+                return;
+            }
+
+            reservations =  reservations.OrderByDescending(i => i.Customer.Name).ToList();
+
+            MessageBox.Show("Reservations record sorted by Customer Name (Z to A)");
+
+            ReloadReservationDataGrid();
+        }
+
+        private void SeatShortToLongest(object sender, RoutedEventArgs e)
+        {
+           //reservations = reservations.OrderBy(i => i.ReservedSeats.Count).ToList();
+
+            if(reservations.Count == 0)
+            {
+                MessageBox.Show("No Reservations Available");
+                return;
+            }
+
+            reservations = reservations.OrderBy(i => i.Customer.Name.Length).ToList();
+            
+            MessageBox.Show("Reservations sorted by customer name shortest to longest)");
+
+            ReloadReservationDataGrid();
+        }
+
+        private void UnreserveSeatAToZ_Click(object sender, RoutedEventArgs e)
+        {
+            var unreservedSeats = uISeats.Where(i => i.GetSeat().State == SeatState.AVAILABLE).ToList();
+            //var unreservedSeats = uISeatList.Where(i => i.GetSeat().State == SeatState.AVAILABLE).ToList();
+            var result = "";
+
+            foreach (UISeat unreserveSeat in unreservedSeats)
+            {
+                result += unreserveSeat.GetSeat().SeatName.ToString() + ", ";
+            }
+
+            // remove trailing comma.
+            //Console.WriteLine(result.Substring(0, result.Length - 1));
+            //result = result.Substring(0,result.Length -1);
+
+            result = result.TrimEnd(',',' ');
+
+            if(result.Length == 0)
+            {
+                result = "NO unreserve seats";
+            }
+
+            MessageBox.Show($"{result}");
+
+            ReloadReservationDataGrid();
+        }
+
+        private void OpenMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (reservations.Count > 0)
+                {
+                    MessageBoxResult result = MessageBox.Show("Would you like to save current reservations before loading backup?", "", MessageBoxButton.YesNo);
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        ExportCurrentReservationToXml();
+                    }
+                }
+
+                OpenFileDialog openFileDialog = new OpenFileDialog
+                {
+                    Multiselect = false,
+                    Filter = "XML Files (*.xml)|*.xml"
+                };
+
+                if (openFileDialog.ShowDialog() == true)
+                {
+                    //ImportFromXml(openFileDialog.FileName);
+
+                    var filename = openFileDialog.FileName;
+                    XmlSerializer serializer = new XmlSerializer(typeof(List<Reservation>));
+
+                    XmlTextReader reader = new XmlTextReader(filename);
+                    var importedReservations = serializer.Deserialize(reader) as List<Reservation>;
+
+                    reservations.Clear();
+                    reader.Close();
+
+                    foreach (var item in importedReservations)
+                    {
+                        reservations.Add(item);
+
+                        foreach (var seat in item.ReservedSeats)
+                        {
+                            MarkSeat(seat.SeatNo, seat.State);
+                            AddSeatToCheckedSeats(seat.SeatNo);
+                            SetSeatCustomerLabel(seat.SeatNo, item.Customer.Name);
+                        }
+                    }
+
+                    ReloadCustomerComboBox();
+
+
+                    //ReloadReservationDataGrid();
+                    
+                    
+                    
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("OpenMenuItem_Click -> Error: {0}", ex.ToString());
+            }
+           
+        }
+
+        private void SaveMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var filename = "SeatLayout_1.xml";
+                ExportToxml(filename,reservations);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("SaveMenuItem_Click -> Error: {0}", ex.ToString());
+            }
+        }
+
+        private void ExportToxml(string filename, Object data)
+        {
+            try
+            {
+                var fileStream = new FileStream(filename, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
+                XmlSerializer serializer = new XmlSerializer(typeof(List<Reservation>));
+
+                serializer.Serialize(fileStream, data);
+                fileStream.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(" Error occured while exporting: {0}", ex.ToString());
+            }
+         
+        }
+        private void ImportFromXml(string filename)
+        {
+            XmlSerializer serializer = new XmlSerializer(typeof(List<Reservation>));
+
+            XmlTextReader reader = new XmlTextReader(filename);
+            var importedReservations = (List<Reservation>)serializer.Deserialize(reader);
+
+            reservations.Clear();
+            foreach (var item in importedReservations)
+            {
+                reservations.Add(item);
+            }
+
+            ReloadReservationDataGrid();
         }
     }
 }

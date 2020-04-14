@@ -7,13 +7,17 @@ using System.Threading.Tasks;
 
 namespace Reservation_System
 {
-    class Reservation : IEnumerable
+    [Serializable]
+    public class Reservation
     {
         int id;
         Customer customer;
         List<Seat> reservedSeats = new List<Seat>();
 
         ReservationGridDataRow row = null;
+
+        public Reservation() { 
+        }
 
         public Reservation(int id,Customer customer, List<Seat> seats)
         {
@@ -29,10 +33,6 @@ namespace Reservation_System
         public int Id { get => id; set => id = value; }
         internal ReservationGridDataRow Row { get => row; set => row = value; }
 
-        public IEnumerator GetEnumerator()
-        {
-            return ((IEnumerable)ReservedSeats).GetEnumerator();
-        }
 
         public string GetReservedSeatsString()
         {

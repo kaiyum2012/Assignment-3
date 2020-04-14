@@ -4,6 +4,8 @@
     {
         string name;
 
+        public Customer() { }
+
         public Customer(string name)
         {
             this.Name = name;
