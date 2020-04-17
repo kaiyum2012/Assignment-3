@@ -114,7 +114,7 @@
                             <ColumnDefinition Width="4.*"></ColumnDefinition>
                             <ColumnDefinition Width="4.*"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" HorizontalContentAlignment="Right" Content="Customer Name:"></Label>
+                        <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" Content="Customer Name:" FontSize="12"></Label>
                         <ComboBox x:Name="customerCombo" Margin="10,0" HorizontalAlignment="Left" Width="175" Height="auto" Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
@@ -123,12 +123,12 @@
                             </ComboBox.ItemTemplate>
                         </ComboBox>
                         <DataGrid x:Name="reservationsDataGrid" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Margin="10,10,10,10" AutoGenerateColumns="True" IsReadOnly="True" AutoGeneratingColumn="ReservationsDataGrid_AutoGeneratingColumn">
-                            <DataGrid.ItemContainerStyle>
+                            <!--<DataGrid.ItemContainerStyle>
                                 <Style TargetType="DataGridRow">
                                     <EventSetter Event="GotFocus" Handler="DataGridRow_GotFocus"></EventSetter>
                                     <EventSetter Event="LostFocus" Handler="DataGridRow_LostFocus"></EventSetter>
                                 </Style>
-                            </DataGrid.ItemContainerStyle>
+                            </DataGrid.ItemContainerStyle>-->
                         </DataGrid>
                         <Button Content="Customers(Z->A)" Click="CustomerZToA_Click" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Width="120" Height="35" FontSize="12"  Style="{StaticResource ResourceKey=actionsBtn}" ></Button>
                         <Button Content="Name (shortest->longest)" Click="SeatShortToLongest" Grid.Row="2" Grid.Column="2" Width="138" Height="35" FontSize="12" Style="{StaticResource ResourceKey=actionsBtn}"></Button>

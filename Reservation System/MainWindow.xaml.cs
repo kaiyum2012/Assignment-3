@@ -1,5 +1,4 @@
 ﻿using Microsoft.Win32;
-using Reservation_System.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -54,9 +53,6 @@ namespace Reservation_System
             CreateSeats();
 
             SetupCustomerComboBox();
-
-            ReservationSerializer util = new ReservationSerializer();
-            
         }
 
         private List<ReservationGridDataRow> GetReservationDetails()
@@ -117,11 +113,11 @@ namespace Reservation_System
                         HorizontalAlignment = HorizontalAlignment.Center,
                     };
 
-                    //TODO:: set grid position 
+                    //DONE:: set grid position 
                     Grid.SetRow(stack, i);
                     Grid.SetColumn(stack, j);
-                    
-                    //TODO:: Create checkbox
+
+                    //DONE:: Create checkbox
                     CheckBox checkBox = new CheckBox
                     {
                         Name = seats[seat].SeatName,
@@ -131,9 +127,7 @@ namespace Reservation_System
                     checkBox.Checked += Seat_Checked;
                     checkBox.Unchecked += Seat_Unchecked;
 
-                    //seatCheckBoxes.Add(checkBox);
-
-                    //TODO:: Create seat image
+                    //DONE:: Create seat image
                     Image image = new Image
                     {
                         Source = new BitmapImage(new Uri(@AVAILABLE_SEAT_PATH, UriKind.Relative)),
@@ -143,20 +137,15 @@ namespace Reservation_System
                         HorizontalAlignment = HorizontalAlignment.Center,
                     };
 
-                    //seatIcons.Add(image);
-
                     checkBox.Content = image;
 
-                    //TODO:: Create Label
-
-                    Console.WriteLine(seats[seat].SeatName);
+                    //DONE:: Create Label
+                    //Console.WriteLine(seats[seat].SeatName);
                     Label label = new Label
                     {
                         Content = seats[seat].SeatName,
                         HorizontalAlignment = HorizontalAlignment.Center
                     };
-
-                    //seatLabels.Add(label);
 
                     Label customerLabel = new Label
                     {
@@ -164,7 +153,7 @@ namespace Reservation_System
                         HorizontalAlignment = HorizontalAlignment.Center,
                     };
                     
-                    //TODO:: Create Label
+                    //DONE:: Create Label
                     stack.Children.Add(checkBox);
                     stack.Children.Add(label);
                     stack.Children.Add(customerLabel);
@@ -173,8 +162,6 @@ namespace Reservation_System
                     uiSeat.SetSeat(Seats[seat]);
 
                     uISeats.Add(uiSeat);
-                    //uISeatList.Add(uiSeat);
-
 
                     seatGrid.Children.Add(stack);
 
@@ -182,26 +169,10 @@ namespace Reservation_System
                 }
             }
         }
-    
-        //private void CheckboxSeatImageSetAt(int selectedSeat)
-        //{
-        //    uISeats[selectedSeat].checkBox.IsChecked = !uISeats[selectedSeat].checkBox.IsChecked;
-
-        //    if (uISeats[selectedSeat].checkBox.IsChecked == true)
-        //    {
-        //        seats[selectedSeat].State = SeatState.SELECTED;
-        //        uISeats[selectedSeat].seatIcon.Source = new BitmapImage(new Uri(@SEAT_SELECTED_PATH, UriKind.Relative));
-        //    }
-        //    else
-        //    {
-        //        seats[selectedSeat].State = SeatState.AVAILABLE;
-        //        uISeats[selectedSeat].seatIcon.Source = new BitmapImage(new Uri(@AVAILABLE_SEAT_PATH, UriKind.Relative));
-        //    }
-        //}
 
         private bool CheckSeatBookSelection()
         {
-            if(/*seatCombo.SelectedIndex != -1 ||*/ checkedSeats.Count > 0)
+            if(checkedSeats.Count > 0)
             {
                 return true;
             }
@@ -352,7 +323,6 @@ namespace Reservation_System
         {
 
             foreach (var seat in uISeats)
-            //foreach (var seat in uISeatList)
             {
                 seat.checkBox.IsChecked = false;
                 MarkSeat(seat.GetSeat().SeatNo, SeatState.AVAILABLE);
@@ -402,7 +372,6 @@ namespace Reservation_System
                     MarkSeat(seat.SeatNo, SeatState.RESERVED);
                     
                     //uISeats[seat.SeatNo].checkBox.IsEnabled = false;
-                    
                     //uISeats[seat.SeatNo].customerLabel.Content = customerName.Text;
                     SetSeatCustomerLabel(seat.SeatNo, customerName.Text);
                 }
@@ -429,7 +398,6 @@ namespace Reservation_System
                     MarkSeat(seat.SeatNo, SeatState.AVAILABLE);
                     RemoveFromCheckedSeats(seat.SeatNo);
                     SetSeatCustomerLabel(seat.SeatNo, "");
-                    //seat.State = SeatState.AVAILABLE;
                 }
 
                 var r = reservations.Where(i => i.Id == row.ReservationIndex).ToArray();
@@ -461,29 +429,6 @@ namespace Reservation_System
                 uISeats[seat.SeatNo].stack.Background = color;
                 //uISeatList[seat.SeatNo].stack.Background = color;
             }
-        }
-
-        private void DataGridRow_GotFocus(object sender, RoutedEventArgs e)
-        {
-            //var rows = reservationsDataGrid.SelectedItems;
-
-            //foreach (ReservationGridDataRow row in rows)
-            //{
-            //    var seats = reservations.Where(i => i.Id == row.ReservationIndex).Select(i => i.ReservedSeats).FirstOrDefault();
-            //    HighlightSeatsFor(seats, true);
-            //}
-        }
-
-        private void DataGridRow_LostFocus(object sender, RoutedEventArgs e)
-        {
-            //var rows = reservationsDataGrid.SelectedItems;
-
-            //foreach (ReservationGridDataRow row in rows)
-            //{
-            //    var seats = reservations.Where(i => i.Id == row.ReservationIndex).Select(i => i.ReservedSeats).FirstOrDefault();
-
-            //    HighlightSeatsFor(seats, false);
-            //}
         }
 
         private void CustomerName_PreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -633,6 +578,12 @@ namespace Reservation_System
 
             XmlTextReader reader = new XmlTextReader(filename);
             var importedReservations = serializer.Deserialize(reader) as List<Reservation>;
+
+            if(importedReservations == null || importedReservations.Count == 0)
+            {
+                MessageBox.Show($"There is no record in the file", "Information");
+                return;
+            }
 
             reservations.Clear();
             reader.Close();

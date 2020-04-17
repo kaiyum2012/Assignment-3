@@ -61,7 +61,6 @@
     <Compile Include="Seat.cs" />
     <Compile Include="UISeat.cs" />
     <Compile Include="UISeatList.cs" />
-    <Compile Include="Utils\ReservationSerializer.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
