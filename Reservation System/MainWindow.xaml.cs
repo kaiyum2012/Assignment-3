@@ -3,6 +3,7 @@ using Reservation_System.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -206,7 +207,7 @@ namespace Reservation_System
             }
             else
             {
-                MessageBox.Show("Please select seat(s)");
+                MessageBox.Show("Please select seat(s)","Warning");
                 Console.WriteLine("Please select seat(s)");
                 return false;
             } 
@@ -216,7 +217,7 @@ namespace Reservation_System
         {
             if(string.IsNullOrWhiteSpace(customerName.Text))
             {
-                MessageBox.Show("Please provide customer name");
+                MessageBox.Show("Please provide customer name","Warning");
                 Console.WriteLine("Please provide customer name");
                 return false;
             }
@@ -284,14 +285,13 @@ namespace Reservation_System
                     return true;
                 }
             }
-            MessageBox.Show("No Seat(s) available");
+            MessageBox.Show("No Seat(s) available","Warning");
             return false;
         }
 
         private void ReloadReservationDataGrid()
         {
             reservationsDataGrid.ItemsSource = GetReservationDetails();
-
         }
 
         private void ReloadCustomerComboBox()
@@ -355,6 +355,8 @@ namespace Reservation_System
             //foreach (var seat in uISeatList)
             {
                 seat.checkBox.IsChecked = false;
+                MarkSeat(seat.GetSeat().SeatNo, SeatState.AVAILABLE);
+                SetSeatCustomerLabel(seat.GetSeat().SeatNo, "");
             }
 
             foreach (var reservation in reservations)
@@ -413,7 +415,7 @@ namespace Reservation_System
 
             if(rows == null || rows.Count == 0)
             {
-                MessageBox.Show("Please Select reservation");
+                MessageBox.Show("Please Select reservation","Warning");
                 return;
             }
             
@@ -510,7 +512,7 @@ namespace Reservation_System
 
             reservations =  reservations.OrderByDescending(i => i.Customer.Name).ToList();
 
-            MessageBox.Show("Reservations record sorted by Customer Name (Z to A)");
+            MessageBox.Show("Reservations record sorted by Customer Name (Z to A)","Customer (Z->A)");
 
             ReloadReservationDataGrid();
         }
@@ -527,7 +529,7 @@ namespace Reservation_System
 
             reservations = reservations.OrderBy(i => i.Customer.Name.Length).ToList();
             
-            MessageBox.Show("Reservations sorted by customer name shortest to longest)");
+            MessageBox.Show("Reservations sorted by customer name shortest to longest)","Customer Nmae Short->Long");
 
             ReloadReservationDataGrid();
         }
@@ -537,24 +539,22 @@ namespace Reservation_System
             var unreservedSeats = uISeats.Where(i => i.GetSeat().State == SeatState.AVAILABLE).ToList();
             //var unreservedSeats = uISeatList.Where(i => i.GetSeat().State == SeatState.AVAILABLE).ToList();
             var result = "";
-
+            var count = 0;
             foreach (UISeat unreserveSeat in unreservedSeats)
             {
-                result += unreserveSeat.GetSeat().SeatName.ToString() + ", ";
+                result += unreserveSeat.GetSeat().SeatName.ToString() + "\n";
+                count++;
             }
-
+            
             // remove trailing comma.
-            //Console.WriteLine(result.Substring(0, result.Length - 1));
-            //result = result.Substring(0,result.Length -1);
-
-            result = result.TrimEnd(',',' ');
+            //result = result.TrimEnd(',',' ');
 
             if(result.Length == 0)
             {
                 result = "NO unreserve seats";
             }
-
-            MessageBox.Show($"{result}");
+            result +=  $"Total Count: {count}";
+            MessageBox.Show($"{result}","Unreserved Seats");
 
             ReloadReservationDataGrid();
         }
@@ -581,36 +581,7 @@ namespace Reservation_System
 
                 if (openFileDialog.ShowDialog() == true)
                 {
-                    //ImportFromXml(openFileDialog.FileName);
-
-                    var filename = openFileDialog.FileName;
-                    XmlSerializer serializer = new XmlSerializer(typeof(List<Reservation>));
-
-                    XmlTextReader reader = new XmlTextReader(filename);
-                    var importedReservations = serializer.Deserialize(reader) as List<Reservation>;
-
-                    reservations.Clear();
-                    reader.Close();
-
-                    foreach (var item in importedReservations)
-                    {
-                        reservations.Add(item);
-
-                        foreach (var seat in item.ReservedSeats)
-                        {
-                            MarkSeat(seat.SeatNo, seat.State);
-                            AddSeatToCheckedSeats(seat.SeatNo);
-                            SetSeatCustomerLabel(seat.SeatNo, item.Customer.Name);
-                        }
-                    }
-
-                    ReloadCustomerComboBox();
-
-
-                    //ReloadReservationDataGrid();
-                    
-                    
-                    
+                    ImportFromXml(openFileDialog.FileName);
                 }
             }
             catch (Exception ex)
@@ -624,8 +595,15 @@ namespace Reservation_System
         {
             try
             {
-                var filename = "SeatLayout_1.xml";
+                if(reservations.Count == 0)
+                {
+                    MessageBox.Show("No reservations to Export, hence Exiting !");
+                    return;
+                }
+
+                var filename = "SeatLayout_"+ DateTime.Today.Date.ToString("dd-MM-yyyy")  +".xml";
                 ExportToxml(filename,reservations);
+                MessageBox.Show("Succesfully Exported to With name: "+filename, "Export Seat Layout - XML");
             }
             catch (Exception ex)
             {
@@ -654,16 +632,30 @@ namespace Reservation_System
             XmlSerializer serializer = new XmlSerializer(typeof(List<Reservation>));
 
             XmlTextReader reader = new XmlTextReader(filename);
-            var importedReservations = (List<Reservation>)serializer.Deserialize(reader);
+            var importedReservations = serializer.Deserialize(reader) as List<Reservation>;
 
             reservations.Clear();
+            reader.Close();
+
             foreach (var item in importedReservations)
             {
+                item.Row = new ReservationGridDataRow(item.Id, item.Customer.Name, item.GetReservedSeatsString());
                 reservations.Add(item);
+
+                foreach (var seat in item.ReservedSeats)
+                {
+                    MarkSeat(seat.SeatNo, seat.State);
+                    AddSeatToCheckedSeats(seat.SeatNo);
+                    SetSeatCustomerLabel(seat.SeatNo, item.Customer.Name);
+                }
             }
 
+            ReloadCustomerComboBox();
+
+            reservationsDataGrid.ItemsSource = null;
             ReloadReservationDataGrid();
         }
+
     }
 }
 

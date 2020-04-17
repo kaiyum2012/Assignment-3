@@ -41,6 +41,9 @@ namespace Reservation_System
             {
                 seats += item.SeatName + ",";
             }
+
+            seats = seats.TrimEnd(',', ' ');
+
             return seats;
         }
     }

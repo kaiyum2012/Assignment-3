@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Reservation_System"
         mc:Ignorable="d"
-        Title="MainWindow" Height="768" Width="1024">
+        Title="Reservation System" Height="768" Width="1024">
     <Window.Resources>
         <Style TargetType="Label">
             <Setter Property="FontFamily" Value="Comic Sans MS"/>

@@ -2,7 +2,7 @@
 <ArrayOfReservation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Reservation>
     <Customer>
-      <Name>qwqe</Name>
+      <Name>Avvvvvv</Name>
     </Customer>
     <ReservedSeats>
       <Seat>
@@ -13,6 +13,11 @@
       <Seat>
         <SeatNo>4</SeatNo>
         <SeatName>Seat_5</SeatName>
+        <State>RESERVED</State>
+      </Seat>
+      <Seat>
+        <SeatNo>5</SeatNo>
+        <SeatName>Seat_6</SeatName>
         <State>RESERVED</State>
       </Seat>
     </ReservedSeats>
